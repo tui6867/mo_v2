@@ -1,0 +1,55 @@
+name: mo-v2-mail-pilot
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+    ports:
+      - "127.0.0.1:8443:8443"
+      - "127.0.0.1:8026:8026"
+    volumes:
+      - pilot_caddy:/data
+    networks: [edge, proxy, capture]
+    depends_on: [api]
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    env_file: .env
+    networks: [proxy, capture, egress]
+    init: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/api/health', headers={'Host':'localhost'}), timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  postfix:
+    image: boky/postfix:5.1.0
+    environment:
+      ALLOW_EMPTY_SENDER_DOMAINS: "true"
+      POSTFIX_myhostname: postfix.example.test
+      RELAYHOST: "[mailpit]:1025"
+      POSTFIX_smtp_tls_security_level: "none"
+    volumes:
+      - pilot_postfix:/var/spool/postfix
+    networks: [capture]
+  mailpit:
+    image: axllent/mailpit:v1.31.5
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+      - pilot_mailpit:/data
+    networks: [capture]
+networks:
+  edge: {}
+  proxy:
+    internal: true
+  capture:
+    internal: true
+  egress: {}
+volumes:
+  pilot_caddy:
+  pilot_postfix:
+  pilot_mailpit:

@@ -73,17 +73,81 @@ Synthetic submission → Postfix → Mailpit
 
 Postfix logs confirmed capture handoff. Real-email success was reported by the user; received authentication headers and deliverability have not been independently inspected.
 
-### Not implemented yet
+### Implementation milestone — October 20, 2026
 
-- React frontend or FastAPI integration.
-- Multi-user credential handling.
-- New sender authorization rules.
-- Integration database migrations.
-- Real-time frontend status.
-- Convex migration.
-- Cross-user isolation and restart-recovery tests.
+The user confirmed this testing repository, direct Gmail SMTP with Postfix/Mailpit
+retained for capture, and development project `gnmimpoeqxeczjhvzrrx`. They chose
+manual dashboard setup and a restricted test-owned-recipient pilot, with a future
+provider pivot if the actual use case requires it.
 
-The working Compose directory has not yet been reviewed.
+Implemented locally:
+
+- `frontend/`: React/TypeScript sign-in, invitation redemption, account connection,
+  plain-text compose, exact preview/confirmation, disconnect and durable history.
+- `outreach/api/`: single-worker FastAPI, verified Supabase identity/access/session,
+  per-owner/Auth-session memory-only connections, 30-minute idle/two-hour maximum
+  lifetime, connection throttling and fixed verified-STARTTLS Gmail transport.
+- Backend-generated sender headers, expiring content-bound approvals, durable
+  claim before SMTP, duplicate protection and conservative finalization/unknown
+  handling. A backend HMAC protects pilot database commands, including finish;
+  browsers cannot fabricate authoritative pilot outcomes using their JWT alone.
+- Additive migration `20261020223515_session_mail_pilot.sql` preserves the original
+  migration, legacy behavior/hashes and shared quotas/suppression/recovery. Both
+  pilot start and claim enforce verified owner/sender and one test-owned recipient.
+  Defaults do not enable live sends. **Not applied remotely.**
+- Separate Compose/Caddy HTTPS deployment in `infra/`, private API/SMTP and
+  capture-only Postfix/Mailpit with no relay secrets or egress. Published endpoints
+  are loopback-only 8443 and 8026. The web proxy has an edge network because Docker
+  does not publish ports on internal-only networks in this environment; the mail
+  services remain on an internal-only network.
+- `MAIL_PILOT_SETUP.md`: user-operated Supabase, keys, Auth, invitation bootstrap,
+  local certificate trust, capture and controlled real-email instructions.
+
+Verified in this testing copy:
+
+- API/domain tests cover tampering, cross-user/session connections, revocation,
+  duplicate clicks, wrong credentials, expired connections/backend-memory loss,
+  failed finalization and ambiguous SMTP outcomes (mocked SMTP).
+- Actual PostgreSQL 17 container tests execute both migrations and verify private
+  grants, backend signatures, Auth-session existence, sender/recipient rules,
+  quota/claim races, unknown holds/recovery, accepted/failed finalization,
+  invitation single use and legacy compatibility. Auth tables/JWT claims are
+  synthetic fixtures, **not hosted Supabase Auth/PostgREST verification**.
+- Real Docker builds and HTTPS proxy requests passed with certificate verification
+  using the test stack's public CA, without modifying the host trust store.
+- Synthetic message submitted through the actual capture adapter → Postfix →
+  isolated Mailpit; captured sender, recipient and body inspected programmatically.
+  Internal-only mail networks verified. No external email sent.
+- Anonymous frontend rendered in the local browser with synthetic public config;
+  no website login, OAuth consent or real password entry was attempted.
+
+Final local checks: **125 Python tests passed** (including 9 real PostgreSQL and
+2 real HTTPS/capture smoke tests); **8 frontend tests passed**; frontend typecheck/
+build, locked dependency sync, Ruff format/lint, compileall and `git diff --check`
+passed. `npm audit` reported zero vulnerabilities. The Python suite emits one
+upstream Starlette TestClient/httpx deprecation warning; it does not affect these
+results. Verification containers and the synthetic UI preview were stopped after
+testing; only the verification project's synthetic named volumes/build cache were
+retained. No host CA trust was installed. CI configuration was added but not run
+remotely.
+
+Still pending:
+
+- User-operated setup and two real invited sessions on the new hosted project.
+- One explicitly user-approved real Gmail message and received authentication
+  headers. Live sending remains off by default; no real SMTP credentials were used.
+- Production-use/provider policy decision: Gmail prohibits spam and unsolicited
+  commercial mail; SMTP is not a bypass for the previous API rejection. See
+  `MAIL_PILOT_SETUP.md` for current official limits/policy sources.
+- Private Realtime Broadcast (current status is explicit authenticated refetch),
+  generalized recipient support, production legal/retention/abuse handling,
+  multi-replica credential routing and any Convex migration.
+
+The supplied Compose structure was reviewed and the existing relay directory was
+located at `/home/devcontainers/projects/postfix_files` in Ubuntu WSL. Its secret
+file was not read, and its files/services/queues/volumes were not modified.
+The MCP connection still points to the old Supabase project; it was not used for
+database changes. No commits or pushes were made.
 
 ## Proposed architecture
 
@@ -115,6 +179,9 @@ Supabase:
 ### Confirm the transport decision before implementation
 
 The user prefers retaining Postfix unless bypassing it provides meaningful benefits.
+
+**Confirmed October 20:** direct live Gmail transport is authorized for the
+restricted pilot; preserve Postfix/Mailpit as an isolated capture path.
 
 Direct Gmail SMTP is recommended because session-only credentials do not require shared relay-file updates or Postfix credential-map synchronization. It also provides the immediate upstream result without an intermediate queue.
 
@@ -405,12 +472,16 @@ Required cases include:
 
 ## Immediate next actions
 
-1. Inspect this repository and applicable instructions.
-2. Confirm the working relay directory and development database target.
-3. Confirm whether real Supabase data must be preserved.
-4. Confirm direct live SMTP versus mandatory Postfix delivery.
-5. Present precise Phase 1 changes and user-operated setup tasks.
-6. Implement only in an authorized mode, incrementally, without commits unless requested.
+1. Follow `MAIL_PILOT_SETUP.md` in the user's own browser to inspect and configure
+   **only** development project `gnmimpoeqxeczjhvzrrx`. Stop on unexpected existing
+   schema; do not modify the old MCP-connected project.
+2. Configure private `infra/.env`, apply reviewed migrations/setup manually and
+   establish trusted local HTTPS. No SMTP password goes in these files.
+3. Verify two hosted invited users, revocation, isolation and capture UI flow.
+4. Only after these gates and user approval, enable both pilot live flags and have
+   the user enter their app password and confirm one test-owned-recipient message.
+5. Resolve the production use-case/provider-policy decision separately. Do not
+   generalize the test-recipient allowlist as a policy workaround.
 
 ## Documentation
 

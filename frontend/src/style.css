@@ -1,0 +1,22 @@
+:root { font-family: system-ui, sans-serif; color: #192b35; background: #f2f5f6; line-height: 1.5; }
+body { margin: 0; }
+main { max-width: 780px; margin: 0 auto; padding: 32px 20px 64px; }
+h1 { font-size: clamp(1.8rem, 5vw, 2.7rem); line-height: 1.15; }
+h2 { font-size: 1.25rem; }
+.eyebrow { color: #356273; font-weight: 700; font-size: .75rem; letter-spacing: .12em; }
+section, aside { background: white; border: 1px solid #d2dfe3; border-radius: 10px; padding: 24px; margin: 20px 0; }
+aside { border-left: 4px solid #b77a15; background: #fff9ed; }
+label { display: block; font-weight: 600; margin: 16px 0; }
+input, textarea, button { font: inherit; box-sizing: border-box; }
+input:not([type=checkbox]), textarea { display: block; width: 100%; margin-top: 6px; padding: 10px; border: 1px solid #8197a1; border-radius: 5px; }
+input[readonly] { background: #edf2f4; }
+button { padding: 10px 16px; background: #175b6e; color: white; border: 0; border-radius: 5px; cursor: pointer; margin: 4px 6px 4px 0; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid #dc9c28; outline-offset: 3px; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; background: #f2f5f6; padding: 16px; }
+dt { font-weight: 600; } dd { margin: 0 0 10px; overflow-wrap: anywhere; }
+article { border-top: 1px solid #d2dfe3; margin-top: 20px; }
+.check { display: flex; align-items: start; gap: 10px; }
+li { margin: 12px 0; overflow-wrap: anywhere; }
+footer { font-size: .85rem; margin-top: 32px; }
+[role=status]:not(:empty) { background: #e3eef3; border-radius: 5px; padding: 15px; overflow-wrap: anywhere; }

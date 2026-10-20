@@ -1,0 +1,13 @@
+# Synthetic local verification only. No usable Auth/SMTP secrets, no live transport.
+# Requires recent Compose supporting !reset. Never use this override for real login.
+services:
+  api:
+    env_file: !reset []
+    environment:
+      MAIL_SUPABASE_URL: https://gnmimpoeqxeczjhvzrrx.supabase.co
+      MAIL_SUPABASE_PUBLISHABLE_KEY: sb_publishable_synthetic_not_a_valid_key
+      MAIL_SIGNING_SECRET: synthetic-verification-only-ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+      MAIL_TEST_RECIPIENT: recipient@example.com
+      MAIL_TRANSPORT: capture
+      MAIL_ENABLE_REAL_SENDS: "false"
+      MAIL_ORIGIN: https://localhost:8443

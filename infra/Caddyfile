@@ -1,0 +1,25 @@
+{
+    admin off
+    auto_https disable_redirects
+}
+https://localhost:8443 {
+    tls internal
+    header {
+        Referrer-Policy no-referrer
+        X-Content-Type-Options nosniff
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://gnmimpoeqxeczjhvzrrx.supabase.co; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+    }
+    handle /api/* {
+        reverse_proxy api:8000
+    }
+    handle {
+        root * /srv
+        try_files {path} /index.html
+        file_server
+    }
+}
+# Administration is published on loopback only by Compose. Mailpit itself remains
+# on the internal-only capture network, without outbound relay connectivity.
+http://:8026 {
+    reverse_proxy mailpit:8025
+}

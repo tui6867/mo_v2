@@ -4,6 +4,14 @@ Invite-only Python/Streamlit job outreach. Supabase handles verified magic-link
 authentication, invitations, durable records and quotas. Sending uses a
 provider-independent SMTP adapter; fake test mode is the default.
 
+## New frontend mail pilot (testing copy)
+
+React + FastAPI now provide a separate one-message compose/preview/send flow,
+private Postfix/Mailpit capture, and gated session-only Gmail SMTP connections.
+Start with **[MAIL_PILOT_SETUP.md](MAIL_PILOT_SETUP.md)** for manual development
+Supabase setup, HTTPS, tests and the controlled real-email gate. Live sending is
+off by default; this is not approval for production unsolicited outreach.
+
 ## First Streamlit Community Cloud launch
 
 Deploy repository **tui6867/mass-outreach-branch**, branch **main**, entrypoint

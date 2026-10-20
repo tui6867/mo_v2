@@ -2,7 +2,7 @@ import os
 import smtplib
 import ssl
 from email import policy
-from email.utils import make_msgid
+from email.utils import formatdate, make_msgid
 
 from outreach.domain.batches import Batch
 from outreach.domain.outcomes import Outcome, State
@@ -53,6 +53,7 @@ class SMTPAdapter:
         msg = batch.wire_message(index)
         msgid = make_msgid(domain=batch.sender.split("@", 1)[1])
         msg["Message-ID"] = msgid
+        msg["Date"] = formatdate(localtime=False, usegmt=True)
         client = None
         submitting = False
         provider_response = None

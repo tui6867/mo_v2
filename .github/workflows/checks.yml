@@ -12,5 +12,29 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run ruff check .
       - run: uv run pytest
+        env:
+          MAIL_RUN_DB_TESTS: '1'
       - run: uv run python -m compileall -q app.py outreach legal.py build_site.py
       - run: uv run python build_site.py
+      - run: docker compose -p mo-v2-mail-pilot-verification -f infra/compose.yaml -f infra/compose.verify.yaml up --build -d --wait
+      - run: uv run pytest tests/test_mail_capture.py -v
+        env:
+          MAIL_RUN_CAPTURE_TESTS: '1'
+      - if: always()
+        run: docker compose -p mo-v2-mail-pilot-verification -f infra/compose.yaml -f infra/compose.verify.yaml down
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - run: npm test
+      - run: npm audit --audit-level=high

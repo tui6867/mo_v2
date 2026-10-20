@@ -7,6 +7,8 @@ dependencies = [
   "email-validator>=2.2,<3",
   "httpx>=0.28,<1",
   "markdown>=3.7,<4",
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.34,<1",
 ]
 
 [dependency-groups]
@@ -19,7 +21,7 @@ pythonpath = ["."]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-exclude = ["billing.py", "patch_streamlit_html.py", ".rocketride", ".claude", ".opencode"]
+exclude = ["billing.py", "patch_streamlit_html.py", ".rocketride", ".claude", ".opencode", ".agents"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

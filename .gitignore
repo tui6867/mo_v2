@@ -9,3 +9,12 @@ __pycache__/
 .ruff_cache/
 site/
 *.pyc
+node_modules/
+frontend/dist/
+frontend/coverage/
+infra/.env
+infra/certs/
+supabase/.temp/
+.agents/
+skills-lock.json
+*.private.sql
