@@ -1,0 +1,11 @@
+.streamlit/secrets.toml
+secrets.toml
+venv/
+__pycache__/
+.rocketride/
+.env
+.venv/
+.pytest_cache/
+.ruff_cache/
+site/
+*.pyc

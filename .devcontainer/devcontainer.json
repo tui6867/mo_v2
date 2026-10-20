@@ -1,0 +1,14 @@
+{
+  "name": "Mass Outreach Python 3.12",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "runArgs": ["-p", "127.0.0.1:8501:8501"],
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  }
+}
