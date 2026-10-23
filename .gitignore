@@ -13,6 +13,7 @@ node_modules/
 frontend/dist/
 frontend/coverage/
 infra/.env
+infra/infra.env
 infra/certs/
 supabase/.temp/
 .agents/

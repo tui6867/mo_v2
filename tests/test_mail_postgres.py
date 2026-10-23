@@ -203,6 +203,50 @@ def test_real_roles_private_tables_signatures_and_sessions(db):
     assert db.command("check", check=False).returncode != 0
 
 
+def test_real_history_is_owner_scoped_and_excludes_legacy_records(db):
+    assert db.command("list") == []
+    own_id, _, _ = db.start(subject="Owner history")
+    other_id = str(uuid4())
+    other = pilot_batch("bob@gmail.com", "recipient@example.com", "Other history", "Body")
+    db.command(
+        "start",
+        other_id,
+        owner=OTHER,
+        session=OTHER_SESSION,
+        manifest=other.manifest(),
+        content_hash=other.digest,
+        global_hourly=5,
+        global_daily=10,
+    )
+    # Historical project-SMTP records have no pilot policy and must not leak into this list.
+    db.sql(f"""
+      insert into outreach.outreach_batches(id,owner_id,content_hash,manifest,test_mode)
+      values('{uuid4()}','{OWNER}','{"f" * 64}','{{}}',true);
+    """)
+    own = db.command("list")
+    assert [item["id"] for item in own] == [own_id]
+    assert own[0]["subject"] == "Owner history"
+    assert set(own[0]) == {"id", "status", "test_mode", "created_at", "subject"}
+    assert own[0]["status"] == "started" and own[0]["test_mode"] is False
+    assert [item["id"] for item in db.command("list", owner=OTHER, session=OTHER_SESSION)] == [
+        other_id
+    ]
+
+
+def test_real_history_returns_only_latest_fifty(db):
+    db.sql(f"""
+      insert into outreach.outreach_batches(id,owner_id,content_hash,manifest,test_mode,created_at)
+      select gen_random_uuid(),'{OWNER}',lpad(i::text,64,'0'),
+        jsonb_build_object('transport_policy','user_capture_v1','messages',
+          jsonb_build_array(jsonb_build_object('subject','Subject '||i))),
+        true,now()-(55-i)*interval '1 second'
+      from generate_series(1,55) as i;
+    """)
+    history = db.command("list")
+    assert len(history) == 50
+    assert [item["subject"] for item in history] == [f"Subject {i}" for i in range(55, 5, -1)]
+
+
 def test_real_claim_race_duplicate_start_and_browser_forgery(db):
     batch_id, batch, _ = db.start()
     assert (

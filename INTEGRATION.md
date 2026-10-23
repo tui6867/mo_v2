@@ -149,6 +149,243 @@ file was not read, and its files/services/queues/volumes were not modified.
 The MCP connection still points to the old Supabase project; it was not used for
 database changes. No commits or pushes were made.
 
+### Subsequent setup execution checkpoint
+
+- User requested full setup using the Supabase connectors. The connector was
+  rechecked and now targets **`gnmimpoeqxeczjhvzrrx`**, not the old project.
+- Both tracked migrations were already installed; neither was rerun. Read-only
+  inspection found no Auth users, application users or batches at this checkpoint.
+- With the user's setup authorization, configured database-only capture defaults:
+  batch limit 1, shared/pilot hourly 5 and daily 10, real sends disabled, recipient
+  `leokarpel98@gmail.com`. Generated an initial cryptographic backend signing key
+  server-side, preserving any existing key and returning only configuration
+  booleans. It has **not** been synchronized to the local API configuration yet.
+- First verified administrator/sender selected: `gamingtui94@gmail.com`.
+  Second controlled test identity selected: `igabbay@binghamton.edu`. Neither has
+  yet been created/confirmed by this setup; do not manufacture verified users.
+- Verified a modern publishable key exists, Email Auth is enabled, signup enabled
+  and email auto-confirm disabled. No login email was requested by the agent.
+- Database grants check: no browser/anon/PUBLIC table grants in `outreach`;
+  anonymous callers cannot execute the pilot RPC; authenticated callers cannot
+  execute the private legacy helper. Hosted authenticated two-user checks remain
+  pending.
+- Advisors returned intentional private-table/no-policy RLS information and
+  warnings for the explicitly authenticated SECURITY DEFINER API. These require
+  retaining their ownership/admin/signature checks, not adding permissive policies
+  to silence warnings. Missing foreign-key indexes are informational follow-up;
+  no indexes or other schema changes were applied during setup.
+- Shell execution subsequently stopped working: even a trivial PowerShell output
+  command timed out. After one longer diagnostic failed, the user chose **manual
+  commands**. No further shell retries, container-start attempts or current test
+  results are claimed. See `MAIL_PILOT_NEXT_STEPS.md` for the handoff.
+- User authorized privately inspecting/preserving `infra/infra.env`, but the shell
+  blocker prevented inspection. Its contents remain unread by the agent. Added
+  that filename to `.gitignore` and `**/*.env` to `.dockerignore`; do not overwrite
+  or delete the source. Copy valid values privately using the manual instructions.
+- Pending user actions: local config/key synchronization, start containers, trust
+  local HTTPS, Auth URLs/template/delivery configuration, and first email
+  verification. Administrator bootstrap, invitations, authenticated capture,
+  revocation/isolation and one user-operated real message follow those gates.
+- No real emails, commits or pushes were made in this setup checkpoint.
+
+Local startup follow-up: user reports HTTPS `/api/health` returns 502 and Caddy
+logs `dial tcp: lookup api: i/o timeout`. This establishes that the request reached
+the HTTPS proxy, but backend service-name resolution failed; it does not establish
+whether the API exited or Docker networking is failing. Requested Compose service
+status and redacted API startup logs before changing configuration. Certificate
+trust changes or Supabase sign-in retries are not a fix for this error.
+
+User-provided diagnostics then confirmed `api` exited with code 1 during
+`Settings.load`: `Publishable key and a private signing secret (64+ characters)
+required`. This combined validation error identifies invalid/missing public-key
+format and/or a too-short signing secret, not a failed Supabase network request.
+Directed the user to correct private **`infra/.env`**, synchronize its backend key
+with the existing database key, and recreate only the API. Added a value-redacted
+format/length diagnostic; no secrets were requested. Successful restart and health
+remain pending user confirmation; no Docker DNS/network changes were made.
+
+### Administrator bootstrap and recovered local execution
+
+- After real email verification/sign-in, the selected Auth identity
+  `gamingtui94@gmail.com` still had no `outreach.users` row. The user switched to
+  Build and authorized bootstrap. Reverified the development connector target,
+  verified identity, absence of other admins and disabled live gates, then created
+  only that active application administrator with an operator-bootstrap audit
+  event. No Auth identity or email confirmation was fabricated; no existing
+  revoked membership was reactivated. No migration or new grants were needed.
+- Executed `outreach_access()` and a backend-signed `check` as the `authenticated`
+  database role using transaction-local claims referencing the existing verified
+  identity/session. Both passed. This is a database-role/RPC check, not a browser
+  sign-in or PostgREST test with the user's real JWT. No token/secret was exposed.
+- The user requested a basic PowerShell test; `Write-Output 'PowerShell access OK'`
+  succeeded. The prior shell blocker is resolved. All pilot containers are now
+  running (API/Postfix/Mailpit healthy), with no API startup errors in the sampled
+  logs. The API's running settings use capture mode, the approved development URL
+  and `leokarpel98@gmail.com`, with live disabled.
+- Compared a fingerprint of the runtime backend key with the database key:
+  **match**. Verified the runtime publishable key reaches public Auth settings
+  successfully. Neither private key nor SMTP credentials were printed.
+- Real certificate-verified HTTPS checks passed: frontend/health 200, anonymous
+  `/api/me` 401 and wrong-origin connection request 403. Running frontend HTML
+  matches the fresh local build. No service login or certificate trust change was
+  automated by the agent.
+- Confirmed Postfix and Mailpit attach only to the internal capture network, then
+  submitted one labelled synthetic transport-only test via the actual capture
+  adapter. Mailpit raw MIME verified From, Reply-To, To, Subject, body, Date and
+  Message-ID. No external email was delivered; no authenticated frontend send is
+  claimed from this transport test. The operator stack was left running.
+- Current regression run: **123 Python passed / 2 skipped**, including nine real
+  disposable PostgreSQL tests; **8 frontend passed**; typecheck/build and Ruff
+  lint/format checks passed. The two skipped tests target a separate synthetic
+  stack on the same fixed ports; equivalent manual scripted checks passed against
+  the operator stack without disrupting it. One upstream TestClient/httpx
+  deprecation warning remains.
+- Advisors were reviewed. Existing authenticated SECURITY DEFINER warnings and
+  private-table/no-policy RLS information remain intentional architecture checks;
+  foreign-key-index information remains follow-up. The newly reported leaked
+  password protection warning also remains a production security follow-up:
+  https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+  No dashboard security settings were changed to silence advisories.
+- Pending: user-operated fresh sign-in/access confirmation and capture from the
+  actual frontend, then second-user invitation/verification/isolation/revocation.
+  Live Gmail remains disabled and requires the user's final approval/password
+  entry. No commits/pushes or original WSL-relay changes were made.
+
+### First hosted frontend capture verified; second-user invitation issued
+
+- User reported completing **Frontend capture verification** from the real
+  frontend. Independently checked its durable batch: completed, test mode,
+  `user_capture_v1`, accepted attempt, zero quota hold, verified admin as
+  From/Reply-To, and approved test recipient. Exactly one Mailpit capture has the
+  same Message-ID and subject. Its canonical plain-text body matches the stored
+  approved body by digest comparison. This verifies the user-operated frontend →
+  API → hosted Supabase → Postfix → Mailpit flow; no external delivery occurred.
+- Generated one cryptographically random second-user application invitation code
+  into an operator-private temporary text artifact outside the checkout, without
+  printing its plaintext. Issued its hash through `public.issue_invitation` under
+  the verified administrator identity, with a 24-hour expiry. Confirmed pending
+  and not revoked. The sole intended identity is `igabbay@binghamton.edu`.
+- The second identity has not yet completed real Auth verification or redemption;
+  no identity/email confirmation was manufactured and no sign-in email was sent
+  by the agent. User must verify it in a separate browser/profile and copy the
+  private code into the application themselves. Second-user isolation/revocation
+  and a real Gmail test remain pending. Both live-send gates remain disabled.
+
+### Second-user redemption and history-query correction
+
+- Confirmed `igabbay@binghamton.edu` completed real email verification/sign-in and
+  redeemed its invitation. Its membership is active, non-admin, and matches the
+  verified email. Removed only the agent-generated temporary invitation file
+  after confirming redemption. No new identity or invitation was manufactured.
+- A read-only hosted isolation check exposed SQLSTATE **42702**: the history list
+  in `outreach_mail_action` used unqualified `manifest`, which conflicts with a
+  local PL/pgSQL variable. This was a real query defect, separate from the expected
+  pre-redemption access denial. Existing sending records were unaffected.
+- Added two actual PostgreSQL regression tests reproducing the failure (both
+  failed before the fix): empty/owner-scoped history with legacy exclusion and
+  latest-50 ordering. Created a migration via CLI, tested locally, then applied
+  **`20261021020352_qualify_pilot_history_columns.sql`** through MCP to the approved
+  development project. Local filename matches the remote migration-history
+  version. The two original migrations were not edited or reapplied.
+- The replacement function changes only the history branch to qualify all table
+  columns with an alias; a source comparison verified security and send paths
+  unchanged. Preserved grants, users, batches, content hashes, quotas and keys;
+  no API/container restart was required.
+- Hosted authenticated-role checks now return the second user's empty own history
+  and deny access to the administrator's known batch. Confirmed existing batch
+  count remains one, anonymous pilot execution remains denied and live remains
+  disabled. Reviewed post-migration advisors; no new security class appeared.
+- Post-fix suite: **125 Python passed / 2 synthetic-stack tests skipped**, including
+  eleven actual PostgreSQL tests; Ruff passed. Previous 8 frontend tests/build
+  remain valid (no frontend code changed). Next: user-operated second capture,
+  then coordinated revocation and the separately approved live-email gate.
+
+### Two-user capture/revocation passed; one live test authorized
+
+- Verified the second user's completed capture in both hosted Supabase and Mailpit:
+  one matching Message-ID, exact headers and canonical body digest, zero hold, test
+  mode. The administrator and second user each retain separate records. The user
+  confirmed administrator history isolation.
+- With explicit user approval, revoked only the non-admin test account through the
+  existing administrator RPC. The user confirmed the already-open second session
+  is blocked while the administrator still works. No Auth session was fabricated
+  or deleted; this exercises application access checks on an existing session.
+- Verified Gmail STARTTLS from the API container without authentication or any mail
+  submission. The user then explicitly authorized **one real message** from
+  `gamingtui94@gmail.com` to `leokarpel98@gmail.com`, with final password entry and
+  send confirmation performed by the user. Suggested subject: `Mass Outreach
+  pilot live test`. No live success is yet claimed.
+- Temporarily changing API/pilot live quotas to **1/hour and 1/day** for this test.
+  The second user remains revoked until live mode is off; the user approved its
+  restoration as an active non-administrator afterward.
+- Both live gates are now enabled and API recreation is healthy. Reconfirmed the
+  approved development project, zero previous real batches/holds/in-flight claims,
+  and that the administrator is the only active sender before enabling the
+  database gate under the shared advisory lock. Recorded an operator audit event.
+  The legacy project-SMTP gate remains off. User-operated live sending is pending.
+- **Cleanup required after the test, including an error/unknown outcome:** disable
+  database live mode; return private `infra/.env` to capture/false and caps 5/10;
+  recreate only the API to drop memory-only credentials; then restore the second
+  user's non-admin application access. Preserve all attempts/unknown quota holds.
+  Do not retry uncertain real mail. Check actual flags if this session is resumed
+  mid-test. User should revoke the dedicated frontend app password afterward.
+
+### One real Gmail submission accepted; cleanup verified
+
+- After explicit approval, the user entered a separate frontend app password and
+  clicked the final live-send confirmation in their own browser. Reported
+  `accepted: SMTP accepted submission (not delivery)`. No login, password entry,
+  preview approval or Send action was automated by the agent.
+- Hosted Supabase confirms **exactly one** real batch, completed/accepted,
+  `user_gmail_v1`, from/Reply-To `gamingtui94@gmail.com` to
+  `leokarpel98@gmail.com`, subject `Mass outreach pilot live test`, with a durable
+  Message-ID and zero hold. The user-approved actual content differs from the
+  suggested sample; no exact-sample-content or recipient-delivery claim is made.
+- Disabled the pilot database live gate under the shared advisory lock; recorded
+  operator audit events. Restored private `infra/.env` to capture/false, caps 5/10,
+  and recreated **only API** to clear the process-memory credential. Verified real
+  certificate-checked `/api/health` and `/api/config` both report capture/false.
+  The legacy project-SMTP live gate was never enabled.
+- Only after disabling live mode, restored the verified second user's application
+  access as explicitly authorized, preserving non-admin status and all records.
+  Recorded a distinct restoration audit event. Verified both users active, one
+  real batch, zero submitting attempts and zero total quota holds.
+- Remaining manual checks: recipient Inbox/Spam, SPF/DKIM/DMARC authentication
+  results, and revocation of only the dedicated frontend Google app password.
+  API recreation does not revoke the provider credential. Keep the separate Auth
+  SMTP credential distinct. Do not resend to investigate delivery uncertainty.
+- Updated operator guides to reflect the completed capture/isolation/revocation
+  and live submission, plus the safe restored state. No issue/PR URL was supplied
+  or opened, and no commits/pushes or original WSL-relay changes were made.
+
+### Final handoff after Docker recovery
+
+- The user reported no access to the account needed for recipient verification
+  and asked to continue. Inbox/Spam delivery and SPF/DKIM/DMARC remain explicitly
+  **unverified**. SMTP acceptance is still verified; it is not a delivery claim.
+  No additional message or recipient change was authorized or performed. Dedicated
+  frontend app-password revocation by the account owner is still unconfirmed.
+- A final Docker check initially found its Linux-engine pipe unavailable. After
+  the user restored Docker connectivity, all four pilot containers were stopped.
+  Privately verified saved capture/false settings and caps 5/10, then ran only
+  this pilot's `docker compose ... up -d --wait`. All four services are running;
+  API/mail healthchecks and web HTTPS checks pass. No containers/volumes were
+  deleted and previous Mailpit captures remain present.
+- Reverified certificate-checked frontend/health/config, capture-only flags,
+  anonymous rejection, wrong-origin rejection, CSP, internal-only capture networks,
+  and served frontend matching the local build. No new SMTP test was submitted.
+- Rechecked the approved hosted development database: pilot and legacy live gates
+  off; both verified memberships active with their original admin/non-admin roles;
+  exactly one accepted real batch; zero in-flight attempts and zero held quota.
+  The deployed history function body digest exactly matches the local migration.
+- Fresh post-recovery results: **125 Python passed / 2 synthetic-stack smoke tests
+  skipped**, including eleven actual PostgreSQL tests; **8 frontend tests passed**;
+  Ruff lint and format checks passed. The prior frontend build remains matched to
+  served assets. One upstream TestClient/httpx deprecation warning remains.
+- Git diff whitespace validation passed. Both private environment files are
+  ignored. No commits or pushes were performed. The app is operational in safe
+  capture mode; production-outreach/provider-policy approval remains out of scope.
+
 ## Proposed architecture
 
 Recommended starting point:

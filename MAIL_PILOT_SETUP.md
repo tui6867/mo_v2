@@ -5,6 +5,21 @@ Streamlit UI remains available. The new React/FastAPI interface is separate.
 No remote migrations, service login, deployment or live sending was performed
 by the implementation session. Follow these steps **in your own browser**.
 
+**Current execution:** the connector targets the approved development project;
+all three migrations are installed. Both real-user capture/isolation and the
+existing-session revocation test passed. One explicitly approved, user-confirmed
+Gmail message reached durable SMTP acceptance; inbox delivery/header checks are
+unverified because the recipient mailbox is unavailable to the operator. No
+additional live send or recipient change was made. Both live gates are off again
+and the API is back in capture mode with
+its in-memory credentials cleared. The second user's non-admin access is restored.
+After Docker connectivity recovered, all four pilot services were started again;
+API/mail healthchecks and web HTTPS checks pass. Volumes and captures were preserved.
+The original implementation session's no-remote-change statement above is
+historical. Follow **[MAIL_PILOT_NEXT_STEPS.md](MAIL_PILOT_NEXT_STEPS.md)** for the
+current checkpoint and remaining recipient/credential checks. Do not reapply
+migrations or regenerate an already configured database signing key.
+
 ## 1. Scope and policy gate
 
 - One plain-text message, one operator-configured **test-owned recipient**,
@@ -42,8 +57,9 @@ by the implementation session. Follow these steps **in your own browser**.
 ## 2. Manual Supabase setup — development project only
 
 Open <https://supabase.com/dashboard/project/gnmimpoeqxeczjhvzrrx> yourself.
-The agent's MCP connection currently targets the **old** project
-`iaubupnvesznnxxerimx`; do not use it for this setup.
+The connector has now been verified against this **development** project.
+The old project `iaubupnvesznnxxerimx` must not be modified. Recheck the connector
+target at the beginning of any later setup session.
 
 ### Inspect before applying
 
@@ -64,6 +80,7 @@ For a fresh project, review and run, in order:
 
 1. `supabase/migrations/202610110001_invite_outreach.sql`
 2. `supabase/migrations/20261020223515_session_mail_pilot.sql`
+3. `supabase/migrations/20261021020352_qualify_pilot_history_columns.sql`
 
 Run each as a transaction (`BEGIN;` / file content / `COMMIT;`) so a failure
 cannot leave half a migration applied. These create private application tables
@@ -121,6 +138,38 @@ The user verifies their own email, then uses **Redeem application invitation**
 with that code. Keep the code and SQL history private. Never paste JWTs or codes
 into chat. Alternatively use the existing Streamlit admin UI configured for
 **this development project** (its own legacy sender configuration is separate).
+
+### Where sender and recipient addresses are managed
+
+| Purpose | Location | Rule |
+| --- | --- | --- |
+| First operator/admin | Verified `auth.users` identity, then `outreach.users.is_admin` | Current selection: `gamingtui94@gmail.com`; never grant admin merely because a browser claims this email. |
+| Additional sending users | `public.issue_invitation` / `public.redeem_invitation`; `outreach.users` | Invite the new address, have its owner verify sign-in and redeem the code. `igabbay@binghamton.edu` is the selected second test user. No source-code sender list needs appending. |
+| Actual sender/Reply-To/SMTP username | `outreach/api/store.py:MailStore.identity`, `outreach/api/app.py:render` / `connect` | Always derived from that session's verified identity. A different sender needs its own verified, invited account; changing a UI default does not authorize it. |
+| Sole test recipient (backend) | Private `infra/.env`, `MAIL_TEST_RECIPIENT`; loaded by `outreach/api/config.py:Settings.load` | Current selection: `leokarpel98@gmail.com`. After editing, recreate only the API service. |
+| Sole test recipient (database) | `outreach.mail_settings.test_recipient`; enforced by `outreach.mail_eligibility` in the pilot migration | Must match the backend's single address. Change it with an operator-authorized SQL UPDATE, not by editing an applied migration. |
+| Recipient display | Authenticated `/api/me` → `frontend/src/App.tsx` | Read-only display of the configured recipient; not an authorization list. |
+
+To **replace** the recipient for a future controlled test, first turn live sending
+off and coordinate any in-flight request, update the one database address and
+`MAIL_TEST_RECIPIENT`, then recreate the API and review a new preview:
+
+```sql
+update outreach.mail_settings
+set live_enabled=false, test_recipient='NEW-TEST-OWNED-EMAIL'
+where singleton;
+```
+
+```powershell
+docker compose -f infra/compose.yaml up -d --force-recreate api
+```
+
+Set `MAIL_ENABLE_REAL_SENDS=false` privately before that recreation. This drops
+memory-only connections. **Do not append comma-separated recipients**: this pilot
+supports exactly one operator-controlled test recipient globally. Per-user or
+multiple-recipient support requires a separately reviewed schema/API change with
+isolation tests and a provider-policy decision. Gmail connection works only for
+eligible Gmail/Workspace accounts; invitation alone does not establish eligibility.
 
 ## 3. Private local configuration and HTTPS
 
@@ -197,6 +246,10 @@ Never run `docker compose config` publicly: it can expand private env values.
    that further preview/send requests are blocked.
 
 ## 5. One user-operated Gmail test
+
+**Current checkpoint:** one approved live submission already completed/accepted.
+Both gates were disabled afterward. Do not repeat it; the instructions below are
+for a future separately approved test. See `MAIL_PILOT_NEXT_STEPS.md` for results.
 
 Only after real SQL/role tests and capture tests pass, and you approve the actual
 message/recipient, enable **both** gates yourself:
