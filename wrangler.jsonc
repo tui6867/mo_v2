@@ -1,0 +1,19 @@
+{
+  "$schema": "cloud-app/node_modules/wrangler/config-schema.json",
+  "name": "mass-outreach-app",
+  "main": "cloud-app/worker/index.ts",
+  "compatibility_date": "2026-10-25",
+  "workers_dev": true,
+  "preview_urls": false,
+  "build": { "command": "npm --prefix cloud-app run build" },
+  "assets": { "directory": "./cloud-app/dist", "binding": "ASSETS", "not_found_handling": "single-page-application", "run_worker_first": true },
+  "durable_objects": { "bindings": [{ "name": "MAIL_SESSIONS", "class_name": "MailSession" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MailSession"] }],
+  "vars": {
+    "APP_ORIGIN": "https://mass-outreach-app.gamingtui94.workers.dev",
+    "SUPABASE_URL": "https://gnmimpoeqxeczjhvzrrx.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_h1IrNkCnhBEbsyc9iHvUtg_gNJ1fqJE",
+    "LIVE_SENDS_ALLOWED": "true"
+  },
+  "observability": { "enabled": false }
+}

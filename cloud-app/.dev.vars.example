@@ -1,0 +1,7 @@
+# Copy to repository-root .dev.vars privately (beside wrangler.jsonc).
+# No service-role key or Gmail password. Local mode cannot send live email.
+APP_ORIGIN=http://127.0.0.1:8787
+SUPABASE_URL=https://gnmimpoeqxeczjhvzrrx.supabase.co
+SUPABASE_PUBLISHABLE_KEY=
+CLOUD_MAIL_SIGNING_SECRET=
+LIVE_SENDS_ALLOWED=false

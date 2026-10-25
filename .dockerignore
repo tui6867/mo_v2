@@ -6,6 +6,11 @@
 **/secrets*
 **/certs
 **/*.private.sql
+**/.dev.vars
+**/.dev.vars.*
+**/.wrangler
+cloud-app/.mcp-deploy
+cloud-app/dist
 .git
 .venv
 venv
