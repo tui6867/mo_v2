@@ -4,6 +4,15 @@ Invite-only Python/Streamlit job outreach. Supabase handles verified magic-link
 authentication, invitations, durable records and quotas. Sending uses a
 provider-independent SMTP adapter; fake test mode is the default.
 
+## Separate launch-page template
+
+Run `npm.cmd run dev:launch` from `frontend/` and open
+**http://127.0.0.1:5174**. The dark-glass launch page has an interactive, fictional
+workflow and preview-only waitlist application; it does not upload, send, collect
+applications or connect to the prototype. See **[Editing and Cloudflare deployment](frontend/launch/EDITING.md)**.
+Build with `npm.cmd run build:launch` into `frontend/dist-launch`, not the pilot's
+`frontend/dist`. The existing pilot and Supabase project are unchanged.
+
 ## New frontend mail pilot (testing copy)
 
 React + FastAPI now provide a separate one-message compose/preview/send flow,

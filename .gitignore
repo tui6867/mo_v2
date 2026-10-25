@@ -11,6 +11,10 @@ site/
 *.pyc
 node_modules/
 frontend/dist/
+frontend/dist-launch/
+frontend/.wrangler/
+frontend/launch-artifacts/
+.openchamber/screenshots/
 frontend/coverage/
 infra/.env
 infra/infra.env
